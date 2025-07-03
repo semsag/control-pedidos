@@ -1,0 +1,82 @@
+.contenedor-agregar {
+    background-color: #970e0e;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.contenedor-agregar h3 {
+    color: #7e4848;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.formulario-producto {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ingreso-datos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ingreso-datos label {
+    font-weight: 600;
+    color: #34495e;
+    font-size: 0.95rem;
+}
+
+.ingreso-datos input {
+    padding: 12px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.ingreso-datos input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.boton-agregar {
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+.boton-agregar:hover {
+    background-color: #218838;
+}
+
+.boton-agregar:active {
+    transform: scale(0.98);
+}
+
+
+@media (max-width: 768px) {
+    .tabla-productos-container {
+        padding: 15px;
+        gap: 20px;
+    }
+
+    .contenedor-agregar {
+        padding: 20px;
+    }
+
+    .ingreso-datos input {
+        padding: 10px 12px;
+    }
+}

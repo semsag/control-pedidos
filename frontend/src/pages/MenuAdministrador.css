@@ -1,0 +1,56 @@
+/* Estilos para el contenedor principal */
+.contenedor-administrativo {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Arial', sans-serif;
+}
+
+#titulo-panel-administrativo {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 4rem;
+    font-size: 5rem;
+}
+
+.modulos-administrador {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+    gap: 2.5rem;
+    padding: 1rem;
+}
+
+.modulos-administrador > div {
+    background: #3a1d0314;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 600px) {
+    .modulos-administrador {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+.modulos-administrador > div:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modulos-administrador > div span {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.titulos-modulos {
+    font-size: 1.25rem;
+    color: #34495e;
+    margin: 0;
+    font-weight: 600;
+}

@@ -1,0 +1,66 @@
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column; /* Organiza los elementos en columna */
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.logo-coelagro {
+  width: 800px; /* Ajusta según necesites */
+  height: auto;
+  margin-bottom: 1.5rem;
+  object-fit: contain; /* Mantiene la proporción */
+  
+}
+
+#ingresos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap; /* Para responsive */
+  margin-top: 20px;
+}
+
+#boton-administrador {
+  width: 150px; /* Más ancho para mejor usabilidad */
+  padding: 12px 20px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #120d0d;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 6px rgba(43, 211, 10, 0.781);
+  background: #13b8139e;
+}
+#boton-usuario{
+  width: 150px; /* Más ancho para mejor usabilidad */
+  padding: 12px 20px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #120d0d;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 6px rgba(43, 211, 10, 0.781);
+  background: #13b8139e;
+}
+
+
+

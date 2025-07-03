@@ -1,0 +1,85 @@
+.crear-cliente {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #d35151e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.crear-cliente h2 {
+    text-align: center;
+    color: #220880;
+    margin-bottom: 2.0rem;
+    font-size: 1.8rem;
+}
+
+.crear-cliente form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.ingreso-datos {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ingreso-datos label {
+    font-weight: 600;
+    color: #34495e;
+    font-size: 1rem;
+}
+
+.ingreso-datos input {
+    padding: 0.8rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.ingreso-datos input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.ingreso-datos input::placeholder {
+    color: #95a5a6;
+    font-size: 0.9rem;
+}
+
+#boton-registrar {
+    padding: 0.8rem 1.5rem;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+#boton-registrar:hover {
+    background-color: #2ecc71;
+}
+
+#boton-registrar:active {
+    transform: scale(0.98);
+}
+
+@media (max-width: 600px) {
+    .crear-cliente {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    .crear-cliente h2 {
+        font-size: 1.5rem;
+    }
+}
