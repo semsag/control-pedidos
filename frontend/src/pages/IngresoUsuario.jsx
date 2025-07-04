@@ -11,25 +11,26 @@ export default function IngresoUsuario() {
   const [error, establecerError] = useState('');
   const [cargando, establecerCargando] = useState(false);
 
-  // Credenciales de desarrollo
-  const CREDENCIALES_ADMIN = {
-    usuario: 'usuario',
-    contraseña: 'usuario123',
-    rol: 'usuario'
-  };
-
   const manejarEnvio = async (e) => {
     e.preventDefault();
     establecerError('');
     establecerCargando(true);
 
     try {
-      // Validación de credenciales
-      if (datosFormulario.usuario !== CREDENCIALES_ADMIN.usuario ||
-        datosFormulario.contraseña !== CREDENCIALES_ADMIN.contraseña) {
-        throw new Error('Credenciales incorrectas');
-      }
+      const response = await fetch('http://localhost:5000/api/login', {
+        method: 'POST',
+        headers: { 'content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre_usuario: datosFormulario.usuario,
+          contraseña: datosFormulario.contraseña
+        })
+      })
 
+      const data = await response.json();
+
+      if (data.usuario.tipo_usuario !=='usuario') {
+        throw new Error('Acceso restringi: se requiere permiso de administrador');
+      }
 
       navegar('/admin/MenuUsuario');
 
