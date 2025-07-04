@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../database');
 
-// --- LA RUTA POST / Y GET / SE MANTIENEN IGUAL QUE LA VERSIÓN ANTERIOR ---
-// (Incluidas aquí para que el archivo esté completo)
+// --- LA RUTA POST / Y GET / SE MANTIENEN IGUAL ---
+// (Se omiten por brevedad, no necesitan cambios)
 
 /**
  * @route POST /api/pedidos
@@ -21,15 +21,20 @@ router.post('/', async (req, res) => {
         const pedidoId = pedidoResult.rows[0].id;
         let totalPedido = 0;
         for (const item of items) {
-            const productoResult = await client.query('SELECT nombre, cantidad FROM productos WHERE id = $1 FOR UPDATE', [item.producto_id]);
+            const productoResult = await client.query('SELECT nombre, cantidad, precio_unitario FROM productos WHERE id = $1 FOR UPDATE', [item.producto_id]);
             if (productoResult.rows.length === 0) throw new Error(`El producto con ID ${item.producto_id} no existe.`);
             const producto = productoResult.rows[0];
             if (producto.cantidad < item.cantidad) throw new Error(`Stock insuficiente para: "${producto.nombre}".`);
+            
+            const precioUnitario = item.precio_unitario || producto.precio_unitario;
+
             await client.query('UPDATE productos SET cantidad = cantidad - $1 WHERE id = $2', [item.cantidad, item.producto_id]);
             await client.query('UPDATE inventario SET cantidad = cantidad - $1 WHERE producto_id = $2', [item.cantidad, item.producto_id]);
-            const subtotal = item.cantidad * item.precio_unitario;
+            
+            const subtotal = item.cantidad * precioUnitario;
             totalPedido += subtotal;
-            await client.query(`INSERT INTO pedido_items (pedido_id, producto_id, cantidad, precio_unitario, subtotal) VALUES ($1, $2, $3, $4, $5)`, [pedidoId, item.producto_id, item.cantidad, item.precio_unitario, subtotal]);
+            
+            await client.query(`INSERT INTO pedido_items (pedido_id, producto_id, cantidad, precio_unitario, subtotal) VALUES ($1, $2, $3, $4, $5)`, [pedidoId, item.producto_id, item.cantidad, precioUnitario, subtotal]);
         }
         await client.query(`UPDATE pedidos SET total = $1 WHERE id = $2`, [totalPedido, pedidoId]);
         await client.query('COMMIT');
@@ -42,6 +47,7 @@ router.post('/', async (req, res) => {
         client.release();
     }
 });
+
 
 /**
  * @route GET /api/pedidos
@@ -68,14 +74,13 @@ router.get('/', async (req, res) => {
 
 /**
  * @route PUT /api/pedidos/:id
- * @description Actualiza el estado de un pedido y maneja el inventario en caso de cancelación.
+ * @description Actualiza el estado de un pedido y maneja el inventario.
  * @access Private (Admin)
  */
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { estado: nuevoEstado } = req.body;
 
-    // Estados permitidos (se quitó 'en_proceso')
     const estadosPermitidos = ['pendiente', 'completado', 'cancelado'];
     if (!estadosPermitidos.includes(nuevoEstado)) {
         return res.status(400).json({
@@ -89,50 +94,64 @@ router.put('/:id', async (req, res) => {
     try {
         await client.query('BEGIN');
 
-        // 1. Obtener el estado actual del pedido
         const pedidoActualResult = await client.query('SELECT estado FROM pedidos WHERE id = $1 FOR UPDATE', [id]);
         if (pedidoActualResult.rows.length === 0) {
             throw new Error('Pedido no encontrado');
         }
         const estadoActual = pedidoActualResult.rows[0].estado;
 
-        // Si el estado no cambia, no hacemos nada
         if (estadoActual === nuevoEstado) {
             await client.query('COMMIT');
             return res.json({ success: true, message: 'El estado del pedido ya era el solicitado.' });
         }
 
-        // 2. Lógica de inventario si el estado cambia a/desde 'cancelado'
+        // Lógica de inventario
         if (nuevoEstado === 'cancelado' && estadoActual !== 'cancelado') {
+            // Si se cancela un pedido (pendiente o completado), se devuelve el stock.
             const itemsResult = await client.query('SELECT producto_id, cantidad FROM pedido_items WHERE pedido_id = $1', [id]);
             for (const item of itemsResult.rows) {
-                // Devolver stock a productos e inventario
                 await client.query('UPDATE productos SET cantidad = cantidad + $1 WHERE id = $2', [item.cantidad, item.producto_id]);
                 await client.query('UPDATE inventario SET cantidad = cantidad + $1 WHERE producto_id = $2', [item.cantidad, item.producto_id]);
             }
         } else if (nuevoEstado !== 'cancelado' && estadoActual === 'cancelado') {
+            // Si se reactiva un pedido (de cancelado a pendiente o completado), se descuenta el stock de nuevo.
             const itemsResult = await client.query('SELECT producto_id, cantidad FROM pedido_items WHERE pedido_id = $1', [id]);
             for (const item of itemsResult.rows) {
                 const stockResult = await client.query('SELECT cantidad, nombre FROM productos WHERE id = $1 FOR UPDATE', [item.producto_id]);
                 if (stockResult.rows[0].cantidad < item.cantidad) {
+                    // ¡Aquí está la validación clave!
                     throw new Error(`Stock insuficiente para reactivar el pedido (producto: ${stockResult.rows[0].nombre}).`);
                 }
-                // Descontar stock de nuevo
                 await client.query('UPDATE productos SET cantidad = cantidad - $1 WHERE id = $2', [item.cantidad, item.producto_id]);
                 await client.query('UPDATE inventario SET cantidad = cantidad - $1 WHERE producto_id = $2', [item.cantidad, item.producto_id]);
             }
         }
+        // Nota: Si se pasa de 'pendiente' a 'completado', no se hace nada con el inventario, lo cual es correcto.
 
-        // 3. Actualizar el estado del pedido
         await client.query('UPDATE pedidos SET estado = $1 WHERE id = $2', [nuevoEstado, id]);
-
         await client.query('COMMIT');
         res.json({ success: true, message: `Estado del pedido actualizado a: ${nuevoEstado}` });
 
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('Error al actualizar estado del pedido:', error);
-        res.status(500).json({ success: false, error: 'Error interno al actualizar el estado.', details: error.message });
+
+        // --- MEJORA DE MANEJO DE ERRORES ---
+        // Si el error es por stock insuficiente, enviamos un código 409 (Conflicto).
+        if (error.message.includes('Stock insuficiente')) {
+            return res.status(409).json({
+                success: false,
+                error: 'Conflicto de inventario',
+                details: error.message
+            });
+        }
+
+        // Para cualquier otro error, mantenemos el 500.
+        res.status(500).json({
+            success: false,
+            error: 'Error interno al actualizar el estado.',
+            details: error.message
+        });
     } finally {
         client.release();
     }

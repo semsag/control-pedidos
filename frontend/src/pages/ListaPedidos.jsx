@@ -7,6 +7,7 @@ function ListaPedidos() {
     const [error, setError] = useState('');
     const [filtroEstado, setFiltroEstado] = useState('todos');
 
+    // Función para cargar pedidos (sin cambios)
     useEffect(() => {
         const cargarPedidos = async () => {
             try {
@@ -19,7 +20,12 @@ function ListaPedidos() {
                 }
                 const data = await response.json();
                 if (data.success) {
-                    setPedidos(data.pedidos);
+                    // Asegurarse de que los totales sean números para evitar errores de formato
+                    const pedidosFormateados = data.pedidos.map(p => ({
+                        ...p,
+                        total: Number(p.total)
+                    }));
+                    setPedidos(pedidosFormateados);
                 } else {
                     throw new Error(data.error || 'La respuesta de la API no fue exitosa');
                 }
@@ -32,25 +38,45 @@ function ListaPedidos() {
         cargarPedidos();
     }, []);
 
+    // --- FUNCIÓN ACTUALIZARESTADO MEJORADA ---
     const actualizarEstado = async (pedidoId, nuevoEstado) => {
+        // Guardar el estado original para poder revertirlo en caso de error
+        const pedidoOriginal = pedidos.find(p => p.id === pedidoId);
+        if (!pedidoOriginal) return;
+
+        const estadoOriginal = pedidoOriginal.estado;
+
+        // Actualización optimista: Cambia el estado en la UI inmediatamente
+        setPedidos(prevPedidos =>
+            prevPedidos.map(pedido =>
+                pedido.id === pedidoId ? { ...pedido, estado: nuevoEstado } : pedido
+            )
+        );
+        setError(''); // Limpiar errores anteriores
+
         try {
-            setError('');
             const response = await fetch(`http://localhost:5000/api/pedidos/${pedidoId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ estado: nuevoEstado })
             });
+
+            // Si la respuesta no es exitosa, procesamos el error
             if (!response.ok) {
                 const errData = await response.json();
-                throw new Error(errData.details || 'Error al actualizar estado');
+                // Usamos el mensaje de 'details' que ahora es más específico
+                throw new Error(errData.details || errData.error || 'Error al actualizar estado');
             }
+            // Si todo fue bien, la UI ya está actualizada y no hay que hacer más.
+
+        } catch (err) {
+            // Si hay un error, lo mostramos y revertimos el cambio en la UI
+            setError(err.message);
             setPedidos(prevPedidos =>
                 prevPedidos.map(pedido =>
-                    pedido.id === pedidoId ? { ...pedido, estado: nuevoEstado } : pedido
+                    pedido.id === pedidoId ? { ...pedido, estado: estadoOriginal } : pedido
                 )
             );
-        } catch (err) {
-            setError(err.message);
         }
     };
 
@@ -76,9 +102,10 @@ function ListaPedidos() {
             </div>
 
             {loading && <p>Cargando pedidos...</p>}
-            {error && <p className="error">⚠️ Error: {error}</p>}
+            {/* Mostramos el error de forma más prominente */}
+            {error && <p className="error-message">⚠️ Error: {error}</p>}
 
-            {!loading && !error && (
+            {!loading && (
                 <div className="pedidos-grid">
                     {pedidosFiltrados.length > 0 ? pedidosFiltrados.map(pedido => (
                         <div key={pedido.id} className={`pedido-card estado-${pedido.estado}`}>
@@ -89,7 +116,7 @@ function ListaPedidos() {
                             <div className="pedido-info">
                                 <p><strong>Cliente:</strong> {pedido.cliente?.nombres} {pedido.cliente?.apellidos}</p>
                                 <p><strong>Fecha:</strong> {new Date(pedido.fecha_creacion).toLocaleString()}</p>
-                                <p><strong>Total:</strong> ${Number(pedido.total).toFixed(2)}</p>
+                                <p><strong>Total:</strong> ${pedido.total ? pedido.total.toFixed(2) : '0.00'}</p>
                             </div>
                             <div className="productos-list">
                                 <h4>Productos:</h4>
