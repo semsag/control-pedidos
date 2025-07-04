@@ -100,8 +100,8 @@ function CrearProducto() {
 
       // Mensaje personalizado según si fue actualización o creación
       setSuccess(
-        data.message === 'Producto existente actualizado' 
-          ? `¡Producto actualizado! Se agregaron ${formData.cantidad || 0} unidades.` 
+        data.message === 'Producto existente actualizado'
+          ? `¡Producto actualizado! Se agregaron ${formData.cantidad || 0} unidades.`
           : '¡Producto registrado exitosamente!'
       );
 
@@ -145,8 +145,8 @@ function CrearProducto() {
             {productosExistentes.length > 0 && (
               <ul className="lista-autocompletar">
                 {productosExistentes.map((producto) => (
-                  <li 
-                    key={producto.id} 
+                  <li
+                    key={producto.id}
                     onClick={() => seleccionarProducto(producto)}
                   >
                     {producto.nombre} (Cantidad actual: {producto.cantidad}, Precio: ${producto.precio_unitario})

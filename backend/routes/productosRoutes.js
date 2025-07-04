@@ -2,6 +2,24 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../database');
 
+router.get('/', async (req, res) => {
+    try {
+        const { disponibles } = req.query;
+        let query = 'SELECT * FROM productos ORDER BY nombre ASC';
+
+        if (disponibles === 'true') {
+            // Filtra solo productos con stock
+            query = 'SELECT * FROM productos WHERE cantidad > 0 ORDER BY nombre ASC';
+        }
+
+        const result = await pool.query(query);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Error en GET /api/productos:', err);
+        res.status(500).json({ error: 'Error al obtener productos' });
+    }
+});
+
 
 router.post('/', async (req, res) => {
     const { nombre, categoria, precio_unitario, cantidad } = req.body;
