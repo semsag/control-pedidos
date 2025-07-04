@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import './Inventario.css';
 
 function Inventario() {
+  // Estados separados para la lista y el total
   const [inventario, setInventario] = useState([]);
+  const [totalInventario, setTotalInventario] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -18,16 +20,22 @@ function Inventario() {
         }
         
         const data = await response.json();
-        
-        // Asegurarnos que los valores numéricos son tratados como números
-        const formattedData = data.map(item => ({
-          ...item,
-          valor_unitario: Number(item.valor_unitario) || 0,
-          valor_total: Number(item.valor_total) || 0,
-          cantidad: Number(item.cantidad) || 0
-        }));
-        
-        setInventario(formattedData);
+
+        if (data.success) {
+          // Asegurarnos que los valores numéricos son tratados como números
+          const formattedData = data.inventario.map(item => ({
+            ...item,
+            valor_unitario: Number(item.valor_unitario) || 0,
+            valor_total: Number(item.valor_total) || 0,
+            cantidad: Number(item.cantidad) || 0
+          }));
+          
+          setInventario(formattedData);
+          setTotalInventario(Number(data.totalInventario) || 0);
+        } else {
+          throw new Error(data.error || 'La respuesta de la API no fue exitosa');
+        }
+
       } catch (err) {
         console.error("Error cargando inventario:", err);
         setError(err.message);
@@ -61,11 +69,21 @@ function Inventario() {
               <td>{item.nombre || 'Sin nombre'}</td>
               <td>{item.categoria || 'Sin categoría'}</td>
               <td>{item.cantidad}</td>
-              <td>${typeof item.valor_unitario === 'number' ? item.valor_unitario.toFixed(2) : '0.00'}</td>
-              <td>${typeof item.valor_total === 'number' ? item.valor_total.toFixed(2) : '0.00'}</td>
+              {/* Formato de moneda para Colombia */}
+              <td>{Number(item.valor_unitario).toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</td>
+              <td>{Number(item.valor_total).toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</td>
             </tr>
           ))}
         </tbody>
+        {/* Pie de tabla para mostrar el total general */}
+        <tfoot>
+          <tr>
+            <td colSpan="4" className="total-label">Valor Total del Inventario</td>
+            <td className="total-valor">
+              {totalInventario.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   );

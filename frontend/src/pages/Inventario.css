@@ -109,3 +109,22 @@
     font-size: 1.4rem;
   }
 }
+
+/* En Inventario.css */
+.inventario-table tfoot tr {
+  background-color: #f2f2f2;
+  border-top: 2px solid #4CAF50;
+}
+
+.inventario-table .total-label {
+  text-align: right;
+  font-weight: bold;
+  font-size: 1.1em;
+  padding-right: 10px;
+}
+
+.inventario-table .total-valor {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #2e7d32;
+}

@@ -94,7 +94,7 @@ function App() {
           path="/Estadisticas" 
           element={
             <ProtectedRoute>
-              <h1>Estadisticas</h1>
+              <Estadisticas/>
             </ProtectedRoute>
           } 
         />

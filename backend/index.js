@@ -5,6 +5,7 @@ const clientesRoutes = require('./routes/clientesRoutes');
 const productosRoutes = require('./routes/productosRoutes');
 const inventarioRoutes = require('./routes/inventarioRoutes');
 const pedidosRoutes = require('./routes/pedidosRoutes');
+const estadisticasRoutes = require('./routes/estadisticasRoutes')
 
 
 
@@ -23,6 +24,7 @@ app.use('/api/clientes', clientesRoutes);
 app.use('/api/productos', productosRoutes);
 app.use('/api/inventario', inventarioRoutes);
 app.use('/api/pedidos', pedidosRoutes);
+app.use('/api/estadisticas', estadisticasRoutes);
 
 
 // Iniciar servidor
