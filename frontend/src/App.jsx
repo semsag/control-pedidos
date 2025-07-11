@@ -9,6 +9,7 @@ import CrearUsuario from './pages/CrearUsuario';
 import IngresarProducto from './pages/IngresarProducto';
 import CrearCliente from './pages/CrearCliente';
 import Estadisticas from './pages/Estadisticas';
+import PedidosPendientes from './pages/PedidosPendientes';
 
 import IngresoUsuario from "./pages/IngresoUsuario";
 import MenuUsuario from './pages/MenuUsuario';
@@ -120,7 +121,7 @@ function App() {
           path="PedidosPendientes" 
           element={
             <ProtectedUserRoute>
-              <h1>Recuadro Entregas</h1>
+              <PedidosPendientes/>
             </ProtectedUserRoute>
           } 
         />

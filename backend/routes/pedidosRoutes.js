@@ -6,6 +6,62 @@ const pool = require('../database');
 // (Se omiten por brevedad, no necesitan cambios)
 
 /**
+ * @route GET /api/pedidos/pendientes
+ * @description Obtiene todos los pedidos que están en estado 'pendiente'.
+ */
+router.get('/pendientes', async (req, res) => {
+    try {
+        // La consulta es similar a la general, pero con un filtro WHERE
+        const query = `
+            SELECT 
+                p.id, 
+                p.fecha_creacion, 
+                p.estado, 
+                p.total,
+                json_build_object('id', c.id, 'nombres', c.nombres, 'apellidos', c.apellidos) as cliente,
+                (SELECT json_agg(
+                    json_build_object(
+                        'id', pi.id, 
+                        'cantidad', pi.cantidad, 
+                        'precio_unitario', pi.precio_unitario, 
+                        'producto', json_build_object('id', pr.id, 'nombre', pr.nombre)
+                    )
+                )
+                 FROM pedido_items pi 
+                 JOIN productos pr ON pi.producto_id = pr.id 
+                 WHERE pi.pedido_id = p.id
+                ) as items
+            FROM pedidos p 
+            JOIN clientes c ON p.cliente_id = c.id
+            WHERE p.estado = 'pendiente' -- <-- ¡Este es el filtro clave!
+            GROUP BY p.id, c.id 
+            ORDER BY p.fecha_creacion DESC;`;
+            
+        const result = await pool.query(query);
+        const pedidos = result.rows.filter(p => p.items); // Filtra pedidos sin items
+        
+        res.json({ 
+            success: true, 
+            count: pedidos.length, 
+            pedidos: pedidos 
+        });
+
+    } catch (error) {
+        console.error('Error al obtener pedidos pendientes:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error al obtener los pedidos pendientes' 
+        });
+    }
+});
+
+// El resto de tus rutas (PUT, POST) permanecen igual...
+
+module.exports = router;
+
+
+
+/**
  * @route POST /api/pedidos
  * @description Crea un nuevo pedido, valida el stock y descuenta del inventario.
  */

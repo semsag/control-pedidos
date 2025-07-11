@@ -1,0 +1,124 @@
+.pedidos-pendientes-container {
+    padding: 20px;
+    font-family: sans-serif;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.pedidos-pendientes-container h2 {
+    text-align: center;
+    color: #333;
+    border-bottom: 2px solid #ffc107;
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+}
+
+.loading-message, .no-pedidos-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: #555;
+    padding: 20px;
+}
+
+.error-message {
+    text-align: center;
+    color: #d9534f;
+    background-color: #f2dede;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #d9534f;
+}
+
+.pedidos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.pedido-card {
+    border: 1px solid #ddd;
+    border-left: 5px solid #ffc107;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.pedido-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.pedido-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.estado {
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-weight: bold;
+    color: white;
+    background-color: #ffc107;
+    text-transform: capitalize;
+}
+
+.pedido-info, .productos-list {
+    margin-bottom: 15px;
+}
+
+.productos-list ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9em;
+}
+
+.productos-list li {
+    background-color: #f9f9f9;
+    padding: 5px;
+    border-radius: 3px;
+    margin-top: 5px;
+}
+
+.acciones {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.acciones label {
+    font-weight: bold;
+    color: #555;
+}
+
+.acciones button {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.acciones button:hover {
+    opacity: 0.85;
+}
+
+.btn-completar {
+    background-color: #28a745; /* Verde */
+}
+
+.btn-cancelar {
+    background-color: #dc3545; /* Rojo */
+}
